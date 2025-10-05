@@ -137,6 +137,13 @@
                 font-size: 12px !important;
                 flex-shrink: 0 !important;
             }
+            
+            .duration-card, .note-card {
+                background: white !important;
+                color: black !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
         }
 
         .poster {
@@ -255,6 +262,7 @@
             font-size: 11px;
             line-height: 1.4;
             color: #263238;
+            vertical-align: top;
         }
 
         .time-cell {
@@ -265,6 +273,7 @@
             color: #006064;
             border-radius: 0 4px 4px 0;
             font-size: 11px;
+            vertical-align: middle;
         }
 
         .icon {
@@ -304,6 +313,80 @@
             color: white;
             font-size: 8px;
             font-weight: bold;
+        }
+
+        .strength-icon {
+            background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 14px;
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .recovery-icon {
+            background: linear-gradient(135deg, #607d8b 0%, #37474f 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 14px;
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .outdoor-icon {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            border-radius: 2px;
+            text-align: center;
+            line-height: 14px;
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        /* 卡片样式 */
+        .duration-card {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid rgba(46, 125, 50, 0.2);
+        }
+
+        .note-card {
+            background: linear-gradient(135deg, #ffcc02 0%, #ff8f00 100%);
+            color: #e65100;
+            padding: 3px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 1px 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(230, 81, 0, 0.2);
+        }
+
+        .note-card.green {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            border: 1px solid rgba(46, 125, 50, 0.2);
+        }
+
+        .note-card.blue {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+            color: #1565c0;
+            border: 1px solid rgba(21, 101, 192, 0.2);
+        }
+
+        .note-card.purple {
+            background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%);
+            color: #7b1fa2;
+            border: 1px solid rgba(123, 31, 162, 0.2);
         }
 
         .tips-section {
@@ -500,45 +583,88 @@
             <tbody>
                 <tr>
                     <td class="day-cell">周一</td>
-                    <td class="content-cell">全身力量训练（深蹲、俯卧撑、硬拉、引体向上、平板支撑，每项3组，每组12-15次）；快走或慢跑20分钟</td>
-                    <td class="time-cell">60分钟</td>
-                    <td class="content-cell">力量训练优先，动作规范，适当增加负重</td>
+                    <td class="content-cell">
+                        <span class="icon strength-icon">力</span>全身力量训练（深蹲、俯卧撑、硬拉、引体向上、平板支撑，每项3组，每组12-15次）<br>
+                        <span class="icon cardio-icon">跑</span>快走或慢跑20分钟
+                    </td>
+                    <td class="time-cell"><span class="duration-card">60分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card red">力量训练优先</span>
+                        <span class="note-card blue">动作规范</span>
+                        <span class="note-card green">适当增加负重</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周二</td>
-                    <td class="content-cell">高强度间歇有氧（HIIT）：30秒高强度冲刺+30秒休息，循环10次；核心训练（俄罗斯转体、卷腹、登山者，每项3组15次）</td>
-                    <td class="time-cell">45-60分钟</td>
-                    <td class="content-cell">HIIT提升心率，注意呼吸与动作质量</td>
+                    <td class="content-cell">
+                        <span class="icon hiit-icon">HIIT</span>高强度间歇有氧（HIIT）：30秒高强度冲刺+30秒休息，循环10次<br>
+                        <span class="icon core-icon">核</span>核心训练（俄罗斯转体、卷腹、登山者，每项3组15次）
+                    </td>
+                    <td class="time-cell"><span class="duration-card">45-60分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card red">HIIT提升心率</span>
+                        <span class="note-card blue">注意呼吸与动作质量</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周三</td>
-                    <td class="content-cell">下肢力量训练（箭步蹲、臀桥、腿举、提踵，每项3组12-15次）；椭圆机或跳绳20分钟</td>
-                    <td class="time-cell">60分钟</td>
-                    <td class="content-cell">下肢大肌群训练，提高能量消耗</td>
+                    <td class="content-cell">
+                        <span class="icon strength-icon">腿</span>下肢力量训练（箭步蹲、臀桥、腿举、提踵，每项3组12-15次）<br>
+                        <span class="icon cardio-icon">跳</span>椭圆机或跳绳20分钟
+                    </td>
+                    <td class="time-cell"><span class="duration-card">60分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card red">下肢大肌群训练</span>
+                        <span class="note-card green">提高能量消耗</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周四</td>
-                    <td class="content-cell">中低强度有氧（快走、骑行或游泳任选一项，持续40分钟）；拉伸放松10分钟</td>
-                    <td class="time-cell">50分钟</td>
-                    <td class="content-cell">有氧节奏均匀，拉伸缓解肌肉紧张</td>
+                    <td class="content-cell">
+                        <span class="icon cardio-icon">氧</span>中低强度有氧（快走、骑行或游泳任选一项，持续40分钟）<br>
+                        <span class="icon recovery-icon">拉</span>拉伸放松10分钟
+                    </td>
+                    <td class="time-cell"><span class="duration-card">50分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card blue">有氧节奏均匀</span>
+                        <span class="note-card green">拉伸缓解肌肉紧张</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周五</td>
-                    <td class="content-cell">上肢力量训练（俯卧撑、哑铃划船、肩推、臂屈伸，每项3组12-15次）；核心训练（平板支撑、侧支撑，每项3组30秒）</td>
-                    <td class="time-cell">60分钟</td>
-                    <td class="content-cell">注重上肢塑形，核心稳定</td>
+                    <td class="content-cell">
+                        <span class="icon strength-icon">臂</span>上肢力量训练（俯卧撑、哑铃划船、肩推、臂屈伸，每项3组12-15次）<br>
+                        <span class="icon core-icon">核</span>核心训练（平板支撑、侧支撑，每项3组30秒）
+                    </td>
+                    <td class="time-cell"><span class="duration-card">60分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card red">注重上肢塑形</span>
+                        <span class="note-card blue">核心稳定</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周六</td>
-                    <td class="content-cell">户外有氧活动（登山、骑行、球类运动等，选择一项，持续60分钟）；拉伸放松</td>
-                    <td class="time-cell">60分钟</td>
-                    <td class="content-cell">户外运动增加趣味性，促进恢复</td>
+                    <td class="content-cell">
+                        <span class="icon outdoor-icon">山</span>户外有氧活动（登山、骑行、球类运动等，选择一项，持续60分钟）<br>
+                        <span class="icon recovery-icon">拉</span>拉伸放松
+                    </td>
+                    <td class="time-cell"><span class="duration-card">60分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card green">户外运动增加趣味性</span>
+                        <span class="note-card blue">促进恢复</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="day-cell">周日</td>
-                    <td class="content-cell">主动恢复（瑜伽、泡沫轴放松、全身拉伸）；可选轻度步行30分钟</td>
-                    <td class="time-cell">30-45分钟</td>
-                    <td class="content-cell">重点恢复，预防伤病</td>
+                    <td class="content-cell">
+                        <span class="icon recovery-icon">恢</span>主动恢复（瑜伽、泡沫轴放松、全身拉伸）<br>
+                        <span class="icon cardio-icon">步</span>可选轻度步行30分钟
+                    </td>
+                    <td class="time-cell"><span class="duration-card">30-45分钟</span></td>
+                    <td class="content-cell">
+                        <span class="note-card green">重点恢复</span>
+                        <span class="note-card blue">预防伤病</span>
+                    </td>
                 </tr></tbody>
         </table>
 
@@ -561,7 +687,7 @@
                 <div class="strategy-item">
                     <h4>有氧与力量结合</h4>
                     <p>力量训练能提升基础代谢，有氧加速脂肪消耗，两者结合效果最佳。</p>
-                </div></div>
+                </div>
                 <div class="strategy-item">
                     <h4>早晨训练习惯</h4>
                     <p>形成习惯后抗拒感会消失，坚持4周即可自动化</p>
