@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI训练计划生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant {
+            background: #f8f9fa;
+            color: #333;
+            align-self: flex-start;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.system {
+            background: #e3f2fd;
+            color: #1976d2;
+            align-self: center;
+            text-align: center;
+            font-style: italic;
+            border-radius: 15px;
+            max-width: 90%;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: loadingDots 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-button.secondary {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .action-button.secondary:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes loadingDots {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 AI训练计划生成器</h1>
+            <p>告诉我您的训练需求，我来为您生成个性化的周训练计划</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message system">
+                👋 您好！我是您的AI训练助手。请告诉我您的训练目标、可用时间、健身水平等信息，我将为您生成一个详细的周训练计划。
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="loading" id="loadingIndicator">
+                <span>AI正在思考中</span>
+                <div class="loading-dots">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            </div>
+            
+            <div class="chat-input-wrapper">
+                <textarea 
+                    class="chat-input" 
+                    id="messageInput" 
+                    placeholder="例如：我想要一个减脂训练计划，每周可以训练4天，每次1小时，我是健身初学者..."
+                    rows="1"
+                ></textarea>
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-button" onclick="generateTrainingPlan()">
+                    🏋️ 生成训练计划
+                </button>
+                <button class="action-button secondary" onclick="viewTrainingPlan()">
+                    📋 查看计划
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let conversationHistory = [];
+        let currentTrainingPlan = null;
+
+        // 自动调整输入框高度
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // 回车发送消息
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 发送消息函数
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // 添加用户消息到界面
+            addMessage('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // 显示加载状态
+            showLoading(true);
+            
+            try {
+                // 调用后端API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 添加AI回复到界面
+                addMessage('assistant', data.response);
+                
+                // 更新对话历史
+                conversationHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: data.response }
+                );
+                
+                // 如果生成了训练计划，保存它
+                if (data.trainingPlan) {
+                    currentTrainingPlan = data.trainingPlan;
+                    showSuccessMessage('训练计划已生成！点击"查看计划"按钮查看详细内容。');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', '抱歉，我遇到了一些技术问题。请稍后再试，或者直接点击"生成训练计划"按钮。');
+                showErrorMessage('连接失败，请检查网络连接或稍后重试。');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessage(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.textContent = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            const sendButton = document.getElementById('sendButton');
+            
+            if (show) {
+                loading.classList.add('show');
+                sendButton.disabled = true;
+            } else {
+                loading.classList.remove('show');
+                sendButton.disabled = false;
+            }
+        }
+
+        // 显示错误消息
+        function showErrorMessage(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            messagesContainer.appendChild(errorDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // 3秒后自动移除错误消息
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 3000);
+        }
+
+        // 显示成功消息
+        function showSuccessMessage(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            messagesContainer.appendChild(successDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // 5秒后自动移除成功消息
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+
+        // 生成训练计划
+        async function generateTrainingPlan() {
+            const defaultPrompt = "请为我生成一个详细的周训练计划，包括每天的训练内容、时长和重点。我是一名健身爱好者，希望有一个平衡的力量训练和有氧训练计划。";
+            
+            addMessage('user', defaultPrompt);
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/generate-plan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: defaultPrompt
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                addMessage('assistant', data.response);
+                currentTrainingPlan = data.trainingPlan;
+                
+                showSuccessMessage('训练计划已生成！点击"查看计划"按钮查看详细内容。');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', '抱歉，生成训练计划时遇到问题。请稍后再试。');
+                showErrorMessage('生成失败，请稍后重试。');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 查看训练计划
+        function viewTrainingPlan() {
+            if (currentTrainingPlan) {
+                // 先更新训练计划页面，然后打开
+                updateTrainingPlanPage().then(() => {
+                    const newWindow = window.open('training_plan.html', '_blank');
+                    if (newWindow) {
+                        newWindow.focus();
+                    }
+                }).catch(error => {
+                    console.error('更新训练计划失败:', error);
+                    showErrorMessage('更新训练计划失败，请稍后重试');
+                });
+            } else {
+                showErrorMessage('请先生成训练计划！');
+            }
+        }
+
+        // 更新训练计划页面
+        async function updateTrainingPlanPage() {
+            if (!currentTrainingPlan) {
+                throw new Error('没有可用的训练计划数据');
+            }
+
+            const response = await fetch('/api/update-training-plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    trainingPlan: currentTrainingPlan
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result;
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 聚焦到输入框
+            messageInput.focus();
+            
+            // 添加欢迎消息
+            setTimeout(() => {
+                addMessage('assistant', '您可以告诉我您的具体需求，比如：\n\n• 训练目标（减脂、增肌、塑形等）\n• 可用时间（每周几天，每次多长时间）\n• 健身水平（初学者、中级、高级）\n• 偏好运动类型（力量训练、有氧、瑜伽等）\n• 设备条件（健身房、居家、户外等）\n\n或者直接点击"生成训练计划"按钮获取一个通用的训练计划！');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
