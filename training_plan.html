@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>训练计划墙贴</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #f5f5f5 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .poster {
+            width: 210mm;
+            height: 297mm;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            margin: 0 auto;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 18px;
+            color: #006064;
+            margin-bottom: 3px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            font-size: 10px;
+            color: #00838f;
+            font-weight: 500;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .schedule-table th {
+            background: linear-gradient(to bottom, #00838f, #006064);
+            color: white;
+            padding: 4px 3px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 9px;
+            position: sticky;
+            top: 0;
+        }
+
+        .schedule-table td {
+            padding: 3px 2px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+            transition: all 0.3s ease;
+            font-size: 8px;
+            line-height: 1.1;
+        }
+
+        .schedule-table tr:hover td {
+            background: rgba(178, 223, 219, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .day-cell {
+            background: linear-gradient(to right, #00838f, #006064);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            width: 40px;
+            font-size: 8px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .content-cell {
+            font-size: 7px;
+            line-height: 1.1;
+            color: #263238;
+        }
+
+        .time-cell {
+            background: rgba(178, 223, 219, 0.3);
+            text-align: center;
+            width: 40px;
+            font-weight: 600;
+            color: #006064;
+            border-radius: 0 4px 4px 0;
+            font-size: 7px;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 2px;
+            vertical-align: middle;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+
+        .skill-icon {
+            background: linear-gradient(135deg, #00838f 0%, #006064 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 10px;
+            color: white;
+            font-size: 6px;
+            font-weight: bold;
+        }
+
+        .wod-icon {
+            background: linear-gradient(135deg, #ff6f00 0%, #e65100 100%);
+            border-radius: 2px;
+            text-align: center;
+            line-height: 10px;
+            color: white;
+            font-size: 6px;
+            font-weight: bold;
+        }
+
+        .cardio-icon {
+            background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 10px;
+            color: white;
+            font-size: 6px;
+            font-weight: bold;
+        }
+
+        .tips-section {
+            background: rgba(178, 223, 219, 0.2);
+            border-radius: 6px;
+            padding: 4px;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .tips-title {
+            font-size: 9px;
+            color: #006064;
+            margin-bottom: 3px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips-title::before {
+            content: "💡";
+            margin-right: 3px;
+            font-size: 10px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+
+        .tips-list {
+            list-style: none;
+            padding-left: 0;
+            font-size: 7px;
+            line-height: 1.1;
+        }
+
+        .tips-list li {
+            margin-bottom: 2px;
+            padding-left: 8px;
+            position: relative;
+            color: #37474f;
+            line-height: 1.2;
+            font-weight: 500;
+        }
+
+        .tips-list li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #00838f;
+            font-weight: bold;
+            font-size: 6px;
+        }
+
+        .strategy-section {
+            background: rgba(178, 223, 219, 0.25);
+            border-radius: 6px;
+            padding: 4px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .strategy-title {
+            font-size: 9px;
+            color: #006064;
+            margin-bottom: 3px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .strategy-title::before {
+            content: "🎯";
+            margin-right: 3px;
+            font-size: 10px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+        }
+
+        .strategy-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 3px;
+            border-radius: 3px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 2px solid #00838f;
+        }
+
+        .strategy-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .strategy-item h4 {
+            color: #00838f;
+            margin-bottom: 2px;
+            font-size: 7px;
+            display: flex;
+            align-items: center;
+        }
+
+        .strategy-item h4::before {
+            content: "●";
+            margin-right: 2px;
+            font-size: 5px;
+        }
+
+        .strategy-item p {
+            font-size: 6px;
+            color: #546e7a;
+            line-height: 1.1;
+        }
+
+        .highlight-skill {
+            background: rgba(0, 131, 143, 0.15);
+            padding: 1px 2px;
+            border-radius: 4px;
+            color: #006064;
+            font-weight: 600;
+            font-size: 6px;
+        }
+
+        .highlight-wod {
+            background: rgba(255, 111, 0, 0.15);
+            padding: 1px 2px;
+            border-radius: 4px;
+            color: #e65100;
+            font-weight: 600;
+            font-size: 6px;
+        }
+
+        .highlight-cardio {
+            background: rgba(0, 200, 83, 0.15);
+            padding: 1px 2px;
+            border-radius: 4px;
+            color: #009624;
+            font-weight: 600;
+            font-size: 6px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .poster {
+                width: 210mm;
+                height: 297mm;
+                box-shadow: none;
+                border: none;
+                background: white !important;
+                backdrop-filter: none;
+            }
+            
+            .schedule-table tr:hover td {
+                background: transparent;
+                transform: none;
+                box-shadow: none;
+            }
+            
+            .strategy-item:hover {
+                transform: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+            
+            .tips-section, .strategy-section {
+                backdrop-filter: none;
+                border: 1px solid rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #00838f;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            color: rgba(0, 131, 143, 0.03);
+            font-weight: 900;
+            z-index: 0;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <div class="watermark">TRAINING</div>
+        
+        <div class="header">
+            <h1 class="title">💪 每日训练计划</h1>
+        </div>
+
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>星期</th>
+                    <th>训练内容</th>
+                    <th>时长</th>
+                    <th>重点/备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="day-cell">周一</td>
+                    <td class="content-cell">
+                        <span class="icon skill-icon">技</span>背+胸+引体向上练习
+                        <br>
+                        <span class="icon wod-icon">W</span>WOD
+                    </td>
+                    <td class="time-cell">60-70min</td>
+                    <td class="content-cell">
+                        <span class="highlight-wod">器械3-4个动作</span>，
+                        <span class="highlight-cardio">波比跳/划船 15-20min</span>；
+                        <br>
+                        <span class="highlight-skill">引体向上退阶动作</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周二</td>
+                    <td class="content-cell">
+                        <span class="icon cardio-icon">有</span>Bodycamp（学校课）
+                    </td>
+                    <td class="time-cell">60min</td>
+                    <td class="content-cell">
+                        <span class="highlight-cardio">有氧强度较大</span>，做完后可适当拉伸恢复；
+                        <br>
+                        <span class="highlight-skill">技能训练可在课后加5-10min引体/倒立</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周三</td>
+                    <td class="content-cell">
+                        <span class="icon skill-icon">技</span>瑜伽（学校课）
+                    </td>
+                    <td class="time-cell">60min</td>
+                    <td class="content-cell">
+                        以<span class="highlight-skill">柔韧、核心、呼吸和恢复</span>为主；
+                        <br>
+                        可额外做<span class="highlight-skill">倒立练习5-10min</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周四</td>
+                    <td class="content-cell">
+                        <span class="icon skill-icon">技</span>胸+肩
+                        <br>
+                        <span class="icon wod-icon">W</span>WOD
+                    </td>
+                    <td class="time-cell">60min</td>
+                    <td class="content-cell">
+                        <span class="highlight-wod">器械3个动作+体重训练或有氧循环15-20min</span>；
+                        <br>
+                        <span class="highlight-skill">核心训练10min</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周五</td>
+                    <td class="content-cell">
+                        <span class="icon skill-icon">技</span>腿+臀训练
+                    </td>
+                    <td class="time-cell">90min</td>
+                    <td class="content-cell">
+                        <span class="highlight-skill">深蹲、硬拉、臀桥</span>等；
+                        <br>
+                        可加入<span class="highlight-wod">短WOD（跳绳、跳箱）</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周六</td>
+                    <td class="content-cell">
+                        <span class="icon skill-icon">技</span>技能专项日
+                    </td>
+                    <td class="time-cell">30-40min</td>
+                    <td class="content-cell">
+                        <span class="highlight-skill">引体向上、倒立、跳绳双摇</span>，
+                        <br>
+                        每项<span class="highlight-skill">10-15min</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="day-cell">周日</td>
+                    <td class="content-cell">
+                        <span class="icon cardio-icon">恢</span>主动恢复/核心强化
+                    </td>
+                    <td class="time-cell">30-40min</td>
+                    <td class="content-cell">
+                        <span class="highlight-cardio">瑜伽/拉伸+核心练习</span>；
+                        <br>
+                        保持<span class="highlight-cardio">低强度，助于恢复和减脂</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="tips-section">
+            <h3 class="tips-title">💡 每日训练提示</h3>
+            <ul class="tips-list">
+                <li><strong>技能训练</strong>：分散短时进行，每天5-15分钟即可</li>
+                <li><strong>最佳时间</strong>：早上第一件事训练，提高坚持率和燃脂效率</li>
+                <li><strong>睡眠保证</strong>：前一天睡眠7-8小时，训练后吃高蛋白早餐</li>
+                <li><strong>Bodycamp调整</strong>：专注呼吸和动作质量，不必追求极限次数</li>
+                <li><strong>饮食配合</strong>：训练前少量碳水，训练后补充蛋白质</li>
+            </ul>
+        </div>
+
+        <div class="strategy-section">
+            <h3 class="strategy-title">🎯 关键策略</h3>
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <h4>技能训练策略</h4>
+                    <p>引体向上/倒立/双摇每天5-15min，可在早上或课后加练</p>
+                </div>
+                <div class="strategy-item">
+                    <h4>早晨训练习惯</h4>
+                    <p>形成习惯后抗拒感会消失，坚持4周即可自动化</p>
+                </div>
+                <div class="strategy-item">
+                    <h4>心理建设</h4>
+                    <p>每完成一周就在墙上打勾，增强成就感和坚持动力</p>
+                </div>
+                <div class="strategy-item">
+                    <h4>强度管理</h4>
+                    <p>允许有抗拒感，但专注于完成动作和呼吸节奏</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+        </div>
+    </div>
+
+    <script>
+        // 添加打印功能
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+
+        // 添加完成状态标记功能
+        document.querySelectorAll('.schedule-table tbody tr').forEach((row, index) => {
+            row.addEventListener('click', function() {
+                if (this.style.opacity === '0.6') {
+                    this.style.opacity = '1';
+                    this.style.textDecoration = 'none';
+                } else {
+                    this.style.opacity = '0.6';
+                    this.style.textDecoration = 'line-through';
+                }
+            });
+            
+            // 添加鼠标悬停效果
+            row.style.cursor = 'pointer';
+            row.title = '点击标记完成状态';
+        });
+
+        // 添加日期显示
+        const today = new Date();
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            weekday: 'long'
+        };
+        
+        const dateElement = document.createElement('div');
+        dateElement.style.textAlign = 'center';
+        dateElement.style.marginBottom = '5px';
+        dateElement.style.color = '#00838f';
+        dateElement.style.fontSize = '10px';
+        dateElement.style.fontWeight = '500';
+        dateElement.textContent = `📅 ${today.toLocaleDateString('zh-CN', options)}`;
+        
+        document.querySelector('.header').insertBefore(dateElement, document.querySelector('.title'));
+
+    </script>
+</body>
+</html>
